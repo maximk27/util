@@ -1,9 +1,11 @@
+#include <functional>
 #include <iostream>
 #include <vector>
 
 using namespace std;
 
-template <typename T> class SegmentTree {
+template <typename T>
+class SegmentTree {
 public:
     int n;
     vector<T> tree;
