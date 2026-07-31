@@ -1,40 +1,45 @@
-#include <algorithm>
-#include <cassert>
-#include <climits>
-#include <cmath>
-#include <cstdint>
-#include <deque>
-#include <iomanip>
-#include <iostream>
-#include <map>
-#include <numeric>
-#include <queue>
-#include <set>
-#include <stack>
-#include <sys/resource.h>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
+#include <bits/stdc++.h>
 
 using namespace std;
 
-void dfsSort(vector<vector<int>> &adjList, int curr, vector<int> &ordering,
-             vector<bool> &visited) {
-    if (visited[curr])
-        return;
-    visited[curr] = true;
-    for (int next : adjList[curr])
-        dfsSort(adjList, next, ordering, visited);
-    ordering.push_back(curr);
+enum State {
+    Unvisited = 0,
+    Visited = 1,
+    Processed = 2,
+};
+
+// return true if exists cycle
+bool dfs(vector<vector<int>> &adjlist, vector<State> &states, int u,
+         vector<int> &ordering) {
+
+    if (states[u] == Visited) {
+        return true;
+    }
+    if (states[u] == Processed) {
+        return false;
+    }
+    // else unvisited
+    states[u] = Visited;
+
+    for (int v : adjlist[u]) {
+        if (dfs(adjlist, states, v, ordering)) {
+            return true;
+        }
+    }
+    ordering.push_back(u);
+    states[u] = Processed;
+    return false;
 }
 
-vector<int> topologicalSort(vector<vector<int>> &adjList) {
-    int n = size(adjList);
+expected<vector<int>, string> TopologicalSort(vector<vector<int>> &adjlist) {
+    int n = adjlist.size();
+    vector<State> states(n);
     vector<int> ordering;
-    vector<bool> visited(n, false);
-    for (int i = 0; i < n; i++)
-        dfsSort(adjList, i, ordering, visited);
+    for (int node = 0; node < n; node++) {
+        if (dfs(adjlist, states, node, ordering)) {
+            return unexpected("IMPOSSIBLE");
+        }
+    }
     reverse(begin(ordering), end(ordering));
     return ordering;
 }
