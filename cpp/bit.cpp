@@ -28,7 +28,7 @@ public:
 
     // [l, r]
     int64_t Sum(int l, int r) {
-        return Sum(r + 1) - Sum(l);
+        return Sum(r) - Sum(l - 1);
     }
 
     void Add(int k, int64_t d) {
