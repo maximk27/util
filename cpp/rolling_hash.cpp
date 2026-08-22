@@ -1,73 +1,28 @@
-#include <cassert>
-#include <climits>
-#include <cmath>
-#include <cstdint>
-#include <deque>
-#include <iostream>
-#include <map>
-#include <numeric>
-#include <queue>
-#include <set>
-#include <stack>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
-
+#include <bits/stdc++.h>
 using namespace std;
 
-int p = 9973;
-int m = 1e9 + 7;
+class PrefixHash {
+    static constexpr int P = 9973;
+    static constexpr int M = 1e9 + 9;
 
-vector<int64_t> rollingHash(string &s) {
-    int n = s.size();
-    vector<int64_t> rhash(n);
-    int64_t hash = 0;
-    for (int i = 0; i < s.size(); i++) {
-        hash = hash * p % m;
-        hash = (hash + s[i]) % m;
-        rhash[i] = hash;
-    }
-    return rhash;
-}
+    vector<int64_t> pref;
+    vector<int64_t> pow;
 
-int64_t getWindow(vector<int64_t> &rhash, vector<int64_t> &pow, int l,
-                  int currLen) {
-    int64_t lval = l == 0 ? 0 : (rhash[l - 1] * pow[currLen]) % m;
-    return (m + rhash[l + currLen - 1] - lval) % m;
-}
+public:
+    PrefixHash(const string &s) {
+        int n = s.size();
+        pref.resize(n + 1, 0);
+        pow.resize(n + 1, 1);
 
-void solve() {
-    string s;
-    cin >> s;
-    vector<int64_t> rhash = rollingHash(s);
-    int n = s.size();
-    vector<int64_t> pow(n + 1);
-    pow[0] = 1;
-    for (int i = 1; i <= n; i++)
-        pow[i] = (pow[i - 1] * p) % m;
-
-    vector<int> ans;
-    for (int len = 1; len <= n; len++) {
-        int i;
-        for (i = len; i < n; i += len) {
-            int currLen = min(len, n - i);
-            int64_t expect = getWindow(rhash, pow, 0, currLen);
-            int64_t actual = getWindow(rhash, pow, i, currLen);
-            if (expect != actual)
-                break;
+        for (int i = 0; i < n; i++) {
+            pow[i + 1] = (pow[i] * P) % M;
+            pref[i + 1] = (pref[i] * P + (s[i] - 'a' + 1)) % M;
         }
-        if (i >= n)
-            ans.push_back(len);
     }
-    for (int val : ans)
-        cout << val << " ";
-    cout << "\n";
-}
 
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cout.tie(nullptr);
-    solve();
-}
+    // [l, r] 0 indexed
+    int64_t query(int l, int r) const {
+        int64_t res = (pref[r + 1] - (pref[l] * pow[r - l + 1]) % M) % M;
+        return (res + M) % M;
+    }
+};
