@@ -22,7 +22,7 @@ if __name__ == "__main__":
         items[freq].append(c)
 
     for freq, keys in reversed(items.items()):
-        print(f"freq={freq}, keys={keys}")
+        print(f"freq={freq}, len(keys)={len(keys)}, keys={keys}")
 
     print(
         f"total_length={len(s)}, unique_chars={len(charfreq)}, unique_sizes={len(items)}"
