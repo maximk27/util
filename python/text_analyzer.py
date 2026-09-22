@@ -1,11 +1,13 @@
 import sys
+from argparse import ArgumentParser
+from sortedcontainers import SortedDict
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print(f"usage: {sys.argv[0]} [string]")
-        sys.exit(1)
+    parser = ArgumentParser()
+    parser.add_argument("text", help="input text", type=str)
+    args = parser.parse_args()
 
-    s = sys.argv[1]
+    s = args.text
 
     charfreq = dict()
     for c in s:
@@ -13,10 +15,15 @@ if __name__ == "__main__":
         c = c.lower()
         charfreq[c] = charfreq.get(c, 0) + 1
 
-    items = [(freq, c) for c, freq in charfreq.items()]
-    items.sort(reverse=True)
+    # freq -> [keys...]
+    items = SortedDict(int)
+    for c, freq in charfreq.items():
+        items[freq] = items.get(freq, [])
+        items[freq].append(c)
 
-    for freq, c in items:
-        print(f"k='{c}', freq={freq}")
+    for freq, keys in reversed(items.items()):
+        print(f"freq={freq}, keys={keys}")
 
-    print(f"length={len(s)}, unique={len(items)}")
+    print(
+        f"total_length={len(s)}, unique_chars={len(charfreq)}, unique_sizes={len(items)}"
+    )
