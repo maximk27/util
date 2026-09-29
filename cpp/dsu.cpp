@@ -5,10 +5,9 @@ using namespace std;
 
 class DSU {
 public:
-    int count;
     vector<int> rep;
 
-    DSU(int n) : count(n) {
+    DSU(int n) {
         rep.resize(n);
         iota(begin(rep), end(rep), 0);
     }
@@ -19,13 +18,12 @@ public:
         return rep[a] = find(rep[a]);
     }
 
-    void unite(int a, int b) {
+    bool unite(int a, int b) {
         a = find(a);
         b = find(b);
-        if (a != b)
-            count--;
-        if (a > b)
-            swap(a, b);
+        if (a == b)
+            return false;
         rep[b] = a;
+        return true;
     }
 };
