@@ -1,4 +1,4 @@
-VERILATOR = verilator --binary --timing --trace-fst -Wall -Wno-fatal -j 0
+VERILATOR = verilator --binary --timing --trace-fst --trace-structs -Wall -Wno-fatal -j 0
 BUILD = build
 TBS = $(wildcard *_tb.sv)
 
