@@ -1,7 +1,9 @@
 module fifo #(
     parameter W = 2, // width per entry
     parameter N = 2, // number of entries
-    localparam N_bits = N > 1 ? $clog2(N) : 1 // max(log(n), 1)
+    localparam N_bits = N > 1 ? $clog2(N) : 1, // max(log(n), 1)
+    localparam type ptr_t = logic[N_bits-1:0],
+    localparam type entry_t = logic[W-1:0]
 )
 (
     // signals
@@ -9,17 +11,17 @@ module fifo #(
     input logic push, pop,
 
     // input
-    input logic [W-1:0] data_in,
+    input entry_t data_in,
 
     // output
     output logic [N-1:0] valid_out,
-    output logic [N-1:0][W-1:0] data_out // 0 is front of queue
+    output entry_t [N-1:0] data_out // 0 is front of queue
 );
 
     typedef struct packed {
         logic [N_bits:0] len;   // [0,N]
-        logic [N_bits-1:0] h, t;
-        logic [N-1:0][W-1:0] q;
+        ptr_t h, t;
+        entry_t [N-1:0] q;
     } state_t;
 
 
@@ -27,7 +29,7 @@ module fifo #(
 
     // cross wiring
     // head -> [head, head+1, ...] 
-    logic [N-1:0][N-1:0][W-1:0] out_mux;
+    entry_t [N-1:0][N-1:0] out_mux;
     logic [N-1:0][N-1:0] valid_mux;
     always_comb begin
         for (int i = 0; i < N; i++) begin
