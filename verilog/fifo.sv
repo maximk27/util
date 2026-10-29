@@ -1,7 +1,7 @@
 module fifo #(
     parameter W = 2, // width per entry
     parameter N = 2, // number of entries
-    localparam N_bits = $clog2(N)
+    localparam N_bits = N > 1 ? $clog2(N) : 1 // max(log(n), 1)
 )
 (
     // signals
@@ -52,15 +52,15 @@ module fifo #(
     always_comb begin
         n_s = s;
 
-        need_pop = pop || s.len == N;
+        need_pop = pop || (push && s.len == N);
 
         if (push) begin
             n_s.q[s.t] = data_in;
-            n_s.t = (s.t + 1) % N;
+            n_s.t = (s.t != N - 1) ? s.t + 1 : 0; // (x+1)%n
         end
 
         if (need_pop) begin
-            n_s.h = (s.h + 1) % N;
+            n_s.h = (s.h != N - 1) ? s.h + 1 : 0; // (x+1)%n
         end
 
         if (push && !need_pop) begin
